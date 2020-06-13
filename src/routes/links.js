@@ -2,24 +2,38 @@ const { Router } = require("express");
 const router = Router();
 const pool = require("../database");
 
-router.get('/add', (req,res)=>{
-    res.render('links/add')
-})
-router.post('/add', async (req,res)=>{
-    const {title, url, description} = req.body;
-    const newLink = {title, url, description}
-    await pool.query('INSERT INTO links set ?',[newLink]);
-    res.redirect('/links')
-})
-router.get('/', async(req,res)=>{
-    const links = await pool.query('SELECT * FROM links')
-    res.render('links/list', {links})
-})
+router.get("/add", (req, res) => {
+  res.render("links/add");
+});
+router.post("/add", async (req, res) => {
+  const { title, url, description } = req.body;
+  const newLink = { title, url, description };
+  await pool.query("INSERT INTO links set ?", [newLink]);
+  res.redirect("/links");
+});
+router.get("/", async (req, res) => {
+  const links = await pool.query("SELECT * FROM links");
+  res.render("links/list", { links });
+});
 
-router.get('/delete/:id', async (req,res)=>{
-    const { id} = req.params;
-   await pool.query('DELETE FROM links WHERE ID = ?', [id])
-   res.redirect('/links')
-})
+router.get("/delete/:id", async (req, res) => {
+  const { id } = req.params;
+  await pool.query("DELETE FROM links WHERE ID = ?", [id]);
+  res.redirect("/links");
+});
+/* envia a una vista con el form de editar basado en el id */
+router.get("/edit/:id", async (req, res) => {
+  const { id } = req.params;
+  const update = await pool.query("SELECT * FROM links WHERE ID = ?", [id]);
+  res.render("links/edit", { update: update[0] }); //obten el primer indice del array
+});
+/* Recibe los datos del formulario de editar */
+router.post("/edit/:id", async (req, res) => {
+  const { id } = req.params;
+  const { title, description, url } = req.body;
+  const newLink = { title, description, url };
+  await pool.query("UPDATE links set ? WHERE ID = ?", [newLink, id]);
+  res.redirect("/links");
+});
 
 module.exports = router;
