@@ -2,6 +2,9 @@ const express = require("express");
 const morgan = require("morgan");
 const exphbs = require("express-handlebars");
 const path = require("path");
+const flash = require("connect-flash");
+const session = require("express-session");
+const mysqlSession = require('express-mysql-session')
 const hbslibs = require("./lib/handlebars");
 
 //routes
@@ -9,6 +12,8 @@ const indexRoutes = require("./routes/index");
 const authRoutes = require("./routes/auth");
 const linksRoutes = require("./routes/links");
 
+//Key DB
+const {database} = require('./keys')
 
 //init
 const app = express();
@@ -32,16 +37,24 @@ app.set("view engine", "hbs");
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(express.static(path.join(__dirname, 'public')))
+app.use(express.static(path.join(__dirname, "public")));
+app.use(session({
+  secret: 'thisasimplesecretstringtothesessiones',
+  resave:false,
+  saveUninitialized:false,
+  store: new mysqlSession(database)
+}))
+app.use(flash())
 
 //Variables Locals
 app.use((req, res, next) => {
+  res.locals.guardado = req.flash('guardado');
   next();
 });
 //Routes
 app.use(indexRoutes);
 app.use(authRoutes);
-app.use('/links', linksRoutes);
+app.use("/links", linksRoutes);
 
 //Start the server
 const init = async () => {
