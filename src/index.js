@@ -52,7 +52,9 @@ app.use(passport.session());
 //Variables Locals
 app.use((req, res, next) => {
   res.locals.guardado = req.flash('guardado');
-  res.locals.error = req.flash('error')
+  res.locals.error = req.flash('error');
+  res.locals.user = req.user;
+
   next();
 });
 //Routes

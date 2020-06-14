@@ -1,13 +1,14 @@
 const { Router } = require("express");
 const passport = require("passport");
+const {deslogueado, loguado} = require('../lib/protected')
 const router = Router();
 
 //RUTAS DE REGISTRO
-router.get("/registro", (req, res) => {
+router.get("/registro", loguado, (req, res) => {
   res.render("auth/registro");
 });
 router.post(
-  "/registro",
+  "/registro",loguado, 
   passport.authenticate("local.registro", {
     successRedirect: "/perfil",
     failureRedirect: "/registro",
@@ -15,20 +16,28 @@ router.post(
   })
 );
 
-router.get("/perfil", (req, res) => {
-  res.send("desde perfil");
+router.get("/perfil", deslogueado, (req, res) => {
+  res.render('perfil');
+  console.log(req.user)
 }); // FIN RUTAS DE REGISTRO
 
 //RUTAS DE LOGIN
-router.get('/login', (req,res)=>{
+router.get('/login',loguado, (req,res)=>{
   res.render('auth/login')
 })
 
-router.post('/login', (req,res, next)=>{
+router.post('/login', loguado,(req,res, next)=>{
   passport.authenticate('local.login', {
     successRedirect: '/perfil',
     failureRedirect: '/login',
     failureFlash: true
   })(req, res, next);
+})//FIN RUTAS DE LOGIN
+
+
+//RUTA DE LOGOUT
+router.get('/logout', (req,res)=>{
+  req.logOut() // meotodo de passport para elimina la session del servidor
+  res.redirect('/login')
 })
 module.exports = router;
