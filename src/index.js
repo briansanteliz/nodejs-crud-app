@@ -6,7 +6,7 @@ const flash = require("connect-flash");
 const session = require("express-session");
 const mysqlSession = require('express-mysql-session')
 const hbslibs = require("./lib/handlebars");
-
+const passport = require('passport')
 //routes
 const indexRoutes = require("./routes/index");
 const authRoutes = require("./routes/auth");
@@ -17,6 +17,7 @@ const {database} = require('./keys')
 
 //init
 const app = express();
+require('./lib/passport'); //require passport 
 
 //settings
 app.set("port", process.env.PORT || 2000);
@@ -44,11 +45,14 @@ app.use(session({
   saveUninitialized:false,
   store: new mysqlSession(database)
 }))
-app.use(flash())
+app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
 //Variables Locals
 app.use((req, res, next) => {
   res.locals.guardado = req.flash('guardado');
+  res.locals.error = req.flash('error')
   next();
 });
 //Routes
