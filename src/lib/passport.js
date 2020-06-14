@@ -30,10 +30,45 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-    done(null, user.id) //agrega el id a la bd
+  done(null, user.id); //agrega el id a la bd
 });
 
-passport.deserializeUser(async(id, done)=>{
-  const resul = await db.query('SELECT * FROM users WHERE ID = ? ', [id])
-  done(null, resul[0])
-})
+passport.deserializeUser(async (id, done) => {
+  const resul = await db.query("SELECT * FROM users WHERE ID = ? ", [id]);
+  done(null, resul[0]);
+});
+
+// AUTENTICACION PARA EL LOGIN
+
+passport.use(
+  "local.login",
+  new LocalStrategy(
+    {
+      usernameField: "username",
+      passwordField: "password",
+      passReqToCallback: true,
+    },
+    async (req, username, password, done) => {
+      const resul = await db.query("SELECT * FROM users WHERE username = ? ", [
+        username,
+      ]);
+      //si el nombre de usuario existe
+      if (resul.length > 0) {
+        const user = resul[0];
+        const comparePass = await helpers.comparePassword(
+          password,
+          user.password
+        );
+            //compara la contraseña
+            if (comparePass) {
+              done(null, user, req.flash('guardado', `Bienenido ${user.username}`));
+            } else {
+              done(null, false, req.flash('error', "La contraseña no es correcta"));
+            }
+        //si el nombre de  usuario NO existe
+      } else {
+        return done(null, false, req.flash('error', "El Nombre de usuario no existe."));
+      }
+    }
+  )
+);

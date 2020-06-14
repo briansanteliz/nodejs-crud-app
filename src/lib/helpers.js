@@ -13,7 +13,8 @@ helpers.encrypPassword = async (password) => {
 //compara la contraseña encriptada con la de la db
 helpers.comparePassword = async (password, passwordBD) => {
   try {
-    await bcrypt.compare(password, passwordBD);
+    const resul = await bcrypt.compare(password, passwordBD);
+    return resul; //devuelve un boolean
   } catch {
     req.flash("error", "Error al comparar la contraseña");
     throw new Error(console.log("Eror al comparar la contraseña"));
