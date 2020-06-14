@@ -23,6 +23,13 @@
       <li class="nav-item">
         <a href="/logout" class="nav-link">Cerrar Session</a>
         </li>
+        {{else}} {{!-- MUESTRA LON LINKS PARA INCIAR SESSION Y PARA REGISTRAR UN USUARIO SINO EXISTE UNA SESSION --}}
+          <li class="nav-item">
+            <a href="/registro" class="nav-link">Registrate</a>            
+          </li>
+          <li class="nav-item">
+            <a href="/login" class="nav-link">Iniciar Session</a>
+          </li>
       {{/if}}
     </ul>
   </div>
